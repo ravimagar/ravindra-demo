@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Automation Demo App</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; }
+    .row { margin: 10px 0; }
+    .result { margin-top: 16px; padding: 10px; border: 1px solid #ccc; background: #f9f9f9; }
+  </style>
+</head>
+<body>
+  <h2>Automation Demo Form</h2>
+  <form id="demoForm">
+    <div class="row"><label>First Name</label><input id="firstName" type="text" /></div>
+    <div class="row"><label>Last Name</label><input id="lastName" type="text" /></div>
+    <div class="row"><label>Email</label><input id="email" type="email" /></div>
+    <div class="row"><label>Age</label><input id="age" type="number" /></div>
+    <div class="row"><label>Country</label><select id="country"><option>Select</option><option>India</option><option>USA</option><option>UK</option></select></div>
+    <div class="row"><label>Skills</label><select id="skills" multiple><option>Java</option><option>Python</option><option>Selenium</option></select></div>
+    <div class="row"><label><input id="newsletter" type="checkbox" /> Subscribe</label></div>
+    <div class="row"><label><input id="agree" type="checkbox" /> Agree to terms</label></div>
+    <div class="row"><label>Upload File</label><input id="uploadFile" type="file" /></div>
+    <div class="row"><button id="submitBtn" type="button">Submit Form</button><button id="statusBtn" type="button">Show Status</button></div>
+  </form>
+  <div id="result" class="result">Ready</div>
+  <script>
+    const form = document.getElementById('demoForm');
+    document.getElementById('submitBtn').addEventListener('click', function () {
+      const firstName = document.getElementById('firstName').value;
+      const lastName = document.getElementById('lastName').value;
+      const email = document.getElementById('email').value;
+      const age = document.getElementById('age').value;
+      const country = document.getElementById('country').value;
+      const skills = Array.from(document.getElementById('skills').selectedOptions).map(o => o.value).join(', ');
+      const newsletter = document.getElementById('newsletter').checked;
+      const agree = document.getElementById('agree').checked;
+      const fileName = document.getElementById('uploadFile').value.split('\\').pop();
+      document.getElementById('result').textContent = 'Submitted: ' + firstName + ' ' + lastName + ' | ' + email + ' | ' + age + ' | ' + country + ' | ' + skills + ' | subscribe=' + newsletter + ' | agree=' + agree + ' | file=' + fileName;
+    });
+    document.getElementById('statusBtn').addEventListener('click', function () {
+      document.getElementById('result').textContent = 'Status: Button clicked';
+    });
+  </script>
+</body>
+</html>
