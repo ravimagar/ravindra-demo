@@ -18,8 +18,8 @@ public class DemoQATest extends BaseTest {
     // This provider reads test case rows from an Excel sheet and passes them into a test method one row at a time.
     @DataProvider(name = "excelData")
     public Object[][] excelData() throws IOException {
-        // Load the Excel file from the resources folder.
-        List<String[]> rows = ExcelUtils.readExcelData(Paths.get("src/test/resources/manual_test_cases.xlsx").toString());
+        // Load the Excel file from the dedicated test-data folder.
+        List<String[]> rows = ExcelUtils.readExcelData(Paths.get("test-data", "manual_test_cases.xlsx").toString());
         Object[][] data = new Object[rows.size()][1];
 
         // Wrap each row as a single parameter for the TestNG data-driven test.
@@ -95,7 +95,7 @@ public class DemoQATest extends BaseTest {
     // This test checks that the Excel workbook exists and contains at least one row of data.
     @Test(priority = 7)
     public void verifyManualTestCaseSheetLoads() throws IOException {
-        List<String[]> rows = ExcelUtils.readExcelData(Paths.get("src/test/resources/manual_test_cases.xlsx").toString());
+        List<String[]> rows = ExcelUtils.readExcelData(Paths.get("test-data", "manual_test_cases.xlsx").toString());
         Assert.assertTrue(rows.size() >= 1, "Manual test case sheet should contain at least one row");
     }
 

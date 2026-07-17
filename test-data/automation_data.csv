@@ -1,0 +1,5 @@
+FirstName,LastName,Email,Age,Country,Skills,Subscribe,Agree
+Ravi,Magar,ravi@example.com,34,India,"Java, Selenium",true,true
+Asha,Patil,asha@example.com,29,USA,Python,false,false
+Kiran,Sharma,kiran@example.com,31,UK,"Java, Python, Selenium",true,false
+Neha,Joshi,neha@example.com,27,India,Selenium,true,true
