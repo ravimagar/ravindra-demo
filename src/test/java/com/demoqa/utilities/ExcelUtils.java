@@ -3,9 +3,11 @@ package com.demoqa.utilities;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -17,11 +19,20 @@ public class ExcelUtils {
     public static List<String[]> readExcelData(String filePath) throws IOException {
         Path path = Paths.get(filePath);
 
-        // If the Excel file does not exist yet, create a workbook with both manual and automation data.
-        if (!Files.exists(path)) {
-            createManualTestCaseWorkbook(path);
+        if (Files.exists(path)) {
+            return readWorkbookData(path);
         }
 
+        Path csvPath = path.resolveSibling(path.getFileName().toString().replaceFirst("\\.xlsx$", ".csv"));
+        if (Files.exists(csvPath)) {
+            return readCsvData(csvPath);
+        }
+
+        createManualTestCaseWorkbook(path);
+        return readWorkbookData(path);
+    }
+
+    private static List<String[]> readWorkbookData(Path path) throws IOException {
         List<String[]> rows = new ArrayList<>();
         try (FileInputStream fis = new FileInputStream(path.toFile()); Workbook workbook = new XSSFWorkbook(fis)) {
             Sheet sheet = workbook.getSheet("Automation Data");
@@ -47,6 +58,45 @@ public class ExcelUtils {
             }
         }
         return rows;
+    }
+
+    private static List<String[]> readCsvData(Path path) throws IOException {
+        List<String[]> rows = new ArrayList<>();
+        try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
+            String line;
+            boolean isFirstLine = true;
+            while ((line = reader.readLine()) != null) {
+                if (line.isBlank()) {
+                    continue;
+                }
+                if (isFirstLine) {
+                    isFirstLine = false;
+                    continue;
+                }
+                rows.add(parseCsvLine(line));
+            }
+        }
+        return rows;
+    }
+
+    private static String[] parseCsvLine(String line) {
+        List<String> values = new ArrayList<>();
+        StringBuilder current = new StringBuilder();
+        boolean inQuotes = false;
+
+        for (int i=0; i < line.length(); i++) {
+            char ch = line.charAt(i);
+            if (ch == '"') {
+                inQuotes = !inQuotes;
+            } else if (ch == ',' && !inQuotes) {
+                values.add(current.toString().trim());
+                current.setLength(0);
+            } else {
+                current.append(ch);
+            }
+        }
+        values.add(current.toString().trim());
+        return values.toArray(new String[0]);
     }
 
     // Create a workbook with a detailed manual test-case sheet and a compact automation data sheet.
