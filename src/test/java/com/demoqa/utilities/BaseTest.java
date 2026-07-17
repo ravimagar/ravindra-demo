@@ -21,6 +21,7 @@ public class BaseTest {
     protected ExtentReports extent;
     protected ExtentTest test;
 
+    // Create the report folder once before the whole suite starts.
     @BeforeSuite
     public void setUpSuite() {
         File reportDir = new File("target/extent-reports");
@@ -30,10 +31,18 @@ public class BaseTest {
         extent.attachReporter(spark);
     }
 
+    // Start a fresh browser session before each test method runs.
     @BeforeMethod
     public void setUp(Method method) {
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless");
+
+        // Allow the suite to run in headless mode by default, but make it easy to switch off with -Dheadless=false.
+        boolean headless = Boolean.parseBoolean(System.getProperty("headless", "true"));
+        if (headless) {
+            options.addArguments("--headless");
+        }
+
+        // These flags help Chrome start more reliably in CI or a container environment.
         options.addArguments("--window-size=1920,1080");
         options.addArguments("--disable-gpu");
         options.addArguments("--disable-infobars");
@@ -41,13 +50,17 @@ public class BaseTest {
         options.addArguments("--disable-dev-shm-usage");
         options.addArguments("--no-sandbox");
         options.addArguments("--remote-allow-origins=*");
+
         driver = new ChromeDriver(options);
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
         driver.manage().window().maximize();
         driver.get("about:blank");
+
+        // Create an Extent report entry for the current test method.
         test = extent.createTest(method.getName());
     }
 
+    // Record the outcome of each test and close the browser afterwards.
     @AfterMethod
     public void tearDown(ITestResult result) {
         if (result.getStatus() == ITestResult.FAILURE) {
@@ -60,6 +73,7 @@ public class BaseTest {
         driver.quit();
     }
 
+    // Write all collected report data to the HTML report at the end of the suite.
     @AfterSuite
     public void tearDownSuite() {
         extent.flush();

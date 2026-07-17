@@ -3,7 +3,6 @@ package com.demoqa.utilities;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -14,8 +13,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ExcelUtils {
+    // Read all non-empty rows from the first sheet of the Excel workbook.
     public static List<String[]> readExcelData(String filePath) throws IOException {
         Path path = Paths.get(filePath);
+
+        // If the Excel file does not exist yet, create a sample workbook with test case data.
         if (!Files.exists(path)) {
             createManualTestCaseWorkbook(path);
         }
@@ -23,6 +25,8 @@ public class ExcelUtils {
         List<String[]> rows = new ArrayList<>();
         try (FileInputStream fis = new FileInputStream(path.toFile()); Workbook workbook = new XSSFWorkbook(fis)) {
             Sheet sheet = workbook.getSheetAt(0);
+
+            // Skip the header row and collect the remaining data rows.
             for (Row row : sheet) {
                 if (row.getRowNum() == 0) continue;
                 boolean isBlank = true;
@@ -42,6 +46,7 @@ public class ExcelUtils {
         return rows;
     }
 
+    // Create a sample Excel workbook with a few manual test cases when the file is missing.
     private static void createManualTestCaseWorkbook(Path path) throws IOException {
         Files.createDirectories(path.getParent());
         try (Workbook workbook = new XSSFWorkbook(); FileOutputStream fos = new FileOutputStream(path.toFile())) {
@@ -52,6 +57,7 @@ public class ExcelUtils {
                 headerRow.createCell(i).setCellValue(headers[i]);
             }
 
+            // Sample data used as fallback test cases when the Excel file is not present.
             Object[][] data = {
                     {"Ravi", "Magar", "ravi@example.com", 34, "India", "Java, Selenium", true, true},
                     {"Asha", "Patil", "asha@example.com", 29, "USA", "Python", false, false},
@@ -78,6 +84,7 @@ public class ExcelUtils {
         }
     }
 
+    // Convert an Excel cell into a readable string value.
     private static String getCellValue(Cell cell) {
         if (cell == null) {
             return "";
